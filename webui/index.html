@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vorflux Gateway · 控制台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="bg-orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div class="grid-overlay"></div>
+
+<!-- ═══════════ LOGIN ═══════════ -->
+<div id="login-view" class="login-view hidden">
+  <div class="login-card">
+    <div class="logo-mark"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="dot d4"></span></div>
+    <h1>Vorflux<span>Gateway</span></h1>
+    <p class="sub">OpenAI-compatible Multi-Account Gateway</p>
+    <div class="field">
+      <input id="login-token" type="password" placeholder="Admin Token" autocomplete="off">
+    </div>
+    <button id="login-btn" class="btn primary full">进入控制台</button>
+    <p class="login-err" id="login-err"></p>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo-mark sm"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="dot d4"></span></div>
+      <div class="brand-txt"><b>Vorflux</b><i>gateway</i></div>
+    </div>
+    <nav class="nav">
+      <a class="nav-item active" data-page="dashboard"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>仪表盘</a>
+      <a class="nav-item" data-page="accounts"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>账号池</a>
+      <a class="nav-item" data-page="keys"><svg viewBox="0 0 24 24"><path d="M12.65 10A6 6 0 1 0 7 21a6 6 0 0 0 5.65-4H17v4h4v-4h2v-4H12.65zM7 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>API Keys</a>
+      <a class="nav-item" data-page="playground"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Playground</a>
+      <a class="nav-item" data-page="logs"><svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h12v2H3z"/></svg>日志</a>
+      <a class="nav-item" data-page="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94a7 7 0 0 0 0-1.88l2.03-1.58-1.92-3.32-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54h-3.84l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96-1.92 3.32 2.03 1.58a7 7 0 0 0 0 1.88l-2.03 1.58 1.92 3.32 2.39-.96c.49.37 1.03.7 1.62.94l.36 2.54h3.84l.36-2.54a7 7 0 0 0 1.62-.94l2.39.96 1.92-3.32-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>设置</a>
+    </nav>
+    <div class="side-foot">
+      <div class="conn-pill" id="conn-pill"><span class="pulse"></span><span id="conn-txt">connecting</span></div>
+      <button id="logout-btn" class="btn ghost sm">退出登录</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- DASHBOARD -->
+    <section class="page" id="page-dashboard">
+      <header class="page-head"><h2>仪表盘</h2><p class="muted" id="dash-upstream"></p></header>
+      <div class="kpi-row">
+        <div class="kpi"><label>健康账号</label><b id="k-healthy">–</b><span id="k-total" class="kpi-sub"></span></div>
+        <div class="kpi"><label>并发中</label><b id="k-inflight">–</b><span class="kpi-sub">in-flight</span></div>
+        <div class="kpi"><label>总请求</label><b id="k-req">–</b><span class="kpi-sub" id="k-okrate"></span></div>
+        <div class="kpi"><label>平均延迟</label><b id="k-lat">–</b><span class="kpi-sub">ms</span></div>
+        <div class="kpi"><label>运行时长</label><b id="k-up">–</b><span class="kpi-sub">uptime</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>账号实时状态</h3><span class="live-dot"></span></div>
+        <div id="dash-accounts" class="acct-grid"></div>
+      </div>
+    </section>
+
+    <!-- ACCOUNTS -->
+    <section class="page hidden" id="page-accounts">
+      <header class="page-head">
+        <h2>账号池</h2>
+        <button class="btn primary" id="add-account-btn">+ 添加账号</button>
+      </header>
+      <div id="accounts-list" class="acct-list"></div>
+    </section>
+
+    <!-- KEYS -->
+    <section class="page hidden" id="page-keys">
+      <header class="page-head"><h2>API Keys</h2><button class="btn primary" id="add-key-btn">+ 新建 Key</button></header>
+      <div class="panel"><table class="tbl" id="keys-tbl"><thead><tr><th>Key</th><th>名称</th><th>创建时间</th><th></th></tr></thead><tbody></tbody></table></div>
+      <p class="muted tip">调用方使用 <code>Authorization: Bearer &lt;key&gt;</code> 访问 <code>/v1/chat/completions</code></p>
+    </section>
+
+    <!-- PLAYGROUND -->
+    <section class="page hidden" id="page-playground">
+      <header class="page-head"><h2>Playground</h2></header>
+      <div class="pg-wrap">
+        <div class="panel pg-input">
+          <div class="row"><label>模型</label><select id="pg-model"><option value="vorflux-auto">vorflux-auto</option></select></div>
+          <div class="row"><label>继续会话 (session_id, 可选)</label><input id="pg-session" placeholder="留空 = 新会话"></div>
+          <div class="row"><label>System</label><textarea id="pg-system" rows="2" placeholder="可选系统提示"></textarea></div>
+          <div class="row"><label>消息</label><textarea id="pg-msg" rows="5" placeholder="输入用户消息…"></textarea></div>
+          <div class="row inline"><label class="chk"><input type="checkbox" id="pg-stream"> stream</label><button class="btn primary" id="pg-send">发送</button></div>
+        </div>
+        <div class="panel pg-output"><div class="panel-head"><h3>响应</h3><span id="pg-meta" class="muted"></span></div><pre id="pg-out"></pre></div>
+      </div>
+    </section>
+
+    <!-- LOGS -->
+    <section class="page hidden" id="page-logs">
+      <header class="page-head"><h2>请求日志</h2><button class="btn ghost" id="logs-refresh">刷新</button></header>
+      <div class="panel"><table class="tbl" id="logs-tbl"><thead><tr><th>时间</th><th>账号</th><th>模型</th><th>类型</th><th>状态</th><th>耗时</th><th>会话</th><th>错误</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="page hidden" id="page-settings">
+      <header class="page-head"><h2>设置</h2></header>
+      <div class="panel set-panel">
+        <div class="row"><label>全局代理</label><input id="set-proxy" placeholder="http://user:pass@host:port 或 socks5://host:port (留空直连)"><p class="hint">所有账号的默认出口代理；账号级代理优先于此项</p></div>
+        <div class="row"><label>模型映射 (JSON)</label><textarea id="set-modelmap" rows="4" placeholder='{"gpt-5": "claude-sonnet-4", "vorflux-auto": ""}'></textarea><p class="hint">OpenAI 模型名 → vorflux modelKey；空值走平台默认模型</p></div>
+        <div class="row"><label>单轮最大等待 (秒)</label><input id="set-maxwait" type="number" min="30" step="10"></div>
+        <button class="btn primary" id="set-save">保存设置</button><span id="set-msg" class="muted"></span>
+      </div>
+      <div class="panel set-panel">
+        <h3>接入信息</h3>
+        <div class="code-block">OPENAI_BASE_URL = <b id="cfg-base"></b>/v1
+Authorization: Bearer &lt;api-key&gt;</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ═══════════ ADD ACCOUNT MODAL ═══════════ -->
+<div id="acct-modal" class="modal-mask hidden">
+  <div class="modal">
+    <div class="modal-head"><h3>添加 Vorflux 账号</h3><button class="x" id="acct-close">×</button></div>
+    <div class="tabs"><button class="tab active" data-tab="otp">邮箱 OTP 登录</button><button class="tab" data-tab="token">导入 Refresh Token</button></div>
+    <div id="tab-otp">
+      <div class="step" id="otp-step1">
+        <label>邮箱</label><input id="otp-email" type="email" placeholder="account@example.com">
+        <label>专属代理 (可选)</label><input id="otp-proxy" placeholder="socks5://host:port">
+        <button class="btn primary full" id="otp-send">发送验证码</button>
+      </div>
+      <div class="step hidden" id="otp-step2">
+        <p class="muted">验证码已发送至 <b id="otp-email-echo"></b></p>
+        <label>6 位验证码</label><input id="otp-code" maxlength="6" placeholder="000000" class="code-input">
+        <button class="btn primary full" id="otp-verify">验证并添加</button>
+        <button class="btn ghost full" id="otp-back">返回</button>
+      </div>
+    </div>
+    <div id="tab-token" class="hidden">
+      <label>邮箱 (可选)</label><input id="imp-email" placeholder="account@example.com">
+      <label>Refresh Token</label><textarea id="imp-token" rows="3" placeholder="OTP token 或 OAuth v1.xxx（自动识别）"></textarea>
+      <p class="hint">支持两类：邮箱 OTP 登录的 refresh_token；浏览器社交登录（Google/GitHub）的 Auth0 轮换 token（<code>v1.</code> 开头，F12 → Application → Local Storage → <code>@@auth0spajs@@</code> 条目内 body.refresh_token）</p>
+      <label>专属代理 (可选)</label><input id="imp-proxy" placeholder="socks5://host:port">
+      <label>Account ID (可选, 高级)</label><input id="imp-accid" placeholder="留空自动解析">
+      <button class="btn primary full" id="imp-add">导入账号</button>
+    </div>
+    <p class="modal-err" id="acct-err"></p>
+  </div>
+</div>
+
+<!-- ═══════════ EDIT ACCOUNT MODAL ═══════════ -->
+<div id="edit-modal" class="modal-mask hidden">
+  <div class="modal">
+    <div class="modal-head"><h3>编辑账号</h3><button class="x" id="edit-close">×</button></div>
+    <p class="muted" id="edit-email"></p>
+    <label>专属代理 (留空用全局)</label><input id="edit-proxy" placeholder="socks5://host:port">
+    <label>最大并发</label><input id="edit-maxc" type="number" min="1" max="32">
+    <button class="btn primary full" id="edit-save">保存</button>
+    <p class="modal-err" id="edit-err"></p>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+<script src="/static/vendor/gsap.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

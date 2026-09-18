@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+gateway.db
+gateway.db-shm
+gateway.db-wal
+tools/farm_results.json
+tools/bonus_watch_results.json
+.env
